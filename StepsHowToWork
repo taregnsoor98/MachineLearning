@@ -1,0 +1,106 @@
+
+
+### **Workflow Steps**
+
+**1. Choose model architecture**
+
+* Selected **Stable Diffusion 1.5**.
+* Architecture type used: **Latent Diffusion Model (LDM) + UNet + VAE + CLIP text encoder**.
+* This served as the technical foundation for all later steps.
+
+---
+
+**2. Download dataset metadata**
+
+* Ran: `ds = load_dataset("laion/relaion-art", split="train")`
+* Then loaded the full dataset using:
+
+  ```python
+  from datasets import load_dataset
+
+  print("Loading full LAION-Art metadata...")
+  ds = load_dataset("laion/relaion-art", split="train")
+
+  print("Total rows:", len(ds))
+  ```
+* Executed in the Anaconda command window (text2image environment).
+
+---
+
+**3. Filter dataset for theme**
+
+* Used the script inside the *check_for_theme* file.
+* Executed with: `python check_for_theme.py`
+* This identified how many images matched the chosen theme.
+
+---
+
+**4. Select a subset of images**
+
+* Chose 20,000 random images that fit the theme (limited by hardware):
+
+  ```python
+  selected_indices = filtered_indices[:20000]
+  len(selected_indices)
+  ```
+
+---
+
+**5. Extract selected metadata**
+
+* Retrieved the metadata for those images:
+
+  ```python
+  flower_subset = [ds[i] for i in selected_indices]
+  len(flower_subset)
+  ```
+* Saved it into a JSON file:
+
+  ```python
+  import json
+
+  with open("flower_subset_metadata.json", "w", encoding="utf-8") as f:
+      json.dump(flower_subset, f, ensure_ascii=False)
+  ```
+
+---
+
+**6. Download the images**
+
+* Created `download_flowers.py`.
+* Ran it using: `python download_flowers.py`.
+* Download speed depended on connection quality and dataset size.
+
+---
+
+**7. Generate “before” images**
+
+* Created `generate_before_images.py`.
+* Ran it to generate the initial (“before”) images.
+
+---
+
+**8. Train the diffusion model**
+
+* Local training wasn’t possible due to no GPU, so switched to Google Colab.
+* Because of Colab’s 90-minute runtime limit, used around 15k images instead of the full 20k.
+* Installed required packages:
+
+  ```bash
+  !pip install torch diffusers transformers accelerate peft xformers --quiet
+  ```
+* Uploaded the ZIP file containing the images.
+* Extracted the ZIP and moved the images into the dataset folder in Drive.
+* Ran the training script located in `train_full.py`.
+
+---
+
+**9. Retrieve LoRA files and generate “after” images**
+
+* Downloaded the trained LoRA files from Colab to the laptop.
+* Used the script `trained_gen.py` to load the LoRA and generate output images.
+* The script produced 12 “after” images using the same prompts used at the start.
+* This confirmed the LoRA was functional and the training was successful.
+
+---
+
