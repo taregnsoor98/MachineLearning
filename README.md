@@ -1,1 +1,1 @@
-To understand how it works, read Stepshowtowork
+To understand how it works, read StepsHowToWork
